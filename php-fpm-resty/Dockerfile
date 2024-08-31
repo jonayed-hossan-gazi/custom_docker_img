@@ -32,37 +32,43 @@ LABEL resty_deb_version="${RESTY_DEB_VERSION}"
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        ca-certificates \
-        gettext-base \
-        gnupg2 \
-        lsb-base \
-        lsb-release \
-        software-properties-common \
-        wget \
+    ca-certificates \
+    gettext-base \
+    gnupg2 \
+    lsb-base \
+    lsb-release \
+    software-properties-common \
+    wget \
     && wget -qO /tmp/pubkey.gpg ${RESTY_APT_PGP} \
     && DEBIAN_FRONTEND=noninteractive apt-key add /tmp/pubkey.gpg \
     && rm /tmp/pubkey.gpg \
     && DEBIAN_FRONTEND=noninteractive add-apt-repository -y "deb ${RESTY_APT_REPO} $(lsb_release -sc) openresty" \
     && DEBIAN_FRONTEND=noninteractive apt-get remove -y --purge \
-        gnupg2 \
-        lsb-release \
-        software-properties-common \
-        wget \
+    gnupg2 \
+    lsb-release \
+    software-properties-common \
+    wget \
     && DEBIAN_FRONTEND=noninteractive apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        openresty${RESTY_DEB_FLAVOR}${RESTY_DEB_VERSION} \
+    openresty${RESTY_DEB_FLAVOR}${RESTY_DEB_VERSION} \
     && DEBIAN_FRONTEND=noninteractive apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir -p /var/run/openresty \
     && ln -sf /dev/stdout /usr/local/openresty${RESTY_DEB_FLAVOR}/nginx/logs/access.log \
     && ln -sf /dev/stderr /usr/local/openresty${RESTY_DEB_FLAVOR}/nginx/logs/error.log
 
+RUN DEBIAN_FRONTEND=noninteractive apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    openresty-resty${RESTY_DEB_FLAVOR}${RESTY_DEB_VERSION} \
+    openresty-opm${RESTY_DEB_FLAVOR}${RESTY_DEB_VERSION} && opm get oooohhoo/lua-resty-s3 \
+    && rm -rf /var/lib/apt/lists/*
+
 # Add additional binaries into PATH for convenience
 ENV PATH="$PATH:/usr/local/openresty${RESTY_DEB_FLAVOR}/luajit/bin:/usr/local/openresty${RESTY_DEB_FLAVOR}/nginx/sbin:/usr/local/openresty${RESTY_DEB_FLAVOR}/bin"
 
 # Copy nginx configuration files
-#COPY nginx.conf /usr/local/openresty${RESTY_DEB_FLAVOR}/nginx/conf/nginx.conf
-#COPY nginx.vh.default.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /usr/local/openresty${RESTY_DEB_FLAVOR}/nginx/conf/nginx.conf
+COPY nginx.vh.default.conf /etc/nginx/conf.d/default.conf
 
 CMD ["/usr/bin/openresty", "-g", "daemon off;"]
 

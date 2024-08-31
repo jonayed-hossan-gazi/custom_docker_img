@@ -12,12 +12,15 @@ RUN wget https://getcomposer.org/installer -O /tmp/composer-setup.php && \
   php /tmp/composer-setup.php --quiet --install-dir=/usr/bin --filename=composer && \
   rm /tmp/composer-setup.php
 
+RUN pecl install xdebug	igbinary raphf memprof inotify && docker-php-ext-enable xdebug	igbinary raphf memprof inotify
+
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
   docker-php-ext-install gd pdo_mysql mysqli pdo_sqlite exif intl pcntl \
   xsl soap zip mbstring sockets bcmath calendar ctype filter ftp gmp ffi && \
   pecl install -o -f redis && \ 
   pecl install -o -f luasandbox && \
-  docker-php-ext-enable luasandbox redis gd && \
+  pecl install apcu && \
+  docker-php-ext-enable luasandbox redis gd apcu && \
   docker-php-source delete && rm -rf /tmp/* /var/lib/apt/lists/* && apt-get clean
 
 ADD php-fpm.conf /usr/local/etc/php-fpm.conf
@@ -30,11 +33,11 @@ RUN cp -v "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" && \
   -e "s/;zend_extension=opcache/zend_extension=opcache/g" \
   "$PHP_INI_DIR/php.ini"
 
-STOPSIGNAL SIGQUIT
-
 EXPOSE 9000
 
 CMD ["php-fpm"]
+
+STOPSIGNAL SIGQUIT
 
 #orginal docker file link
 #https://github.com/docker-library/php/blob/9c81d9730c629b700b88ef22c87839a9d6ab046b/8.3/bullseye/fpm/Dockerfile
