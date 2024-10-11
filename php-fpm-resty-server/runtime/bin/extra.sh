@@ -1,26 +1,5 @@
 #!/bin/bash
 
-
-# Disable opcache
-if [ ! -z "$OPcache" ]; then
- sed -i 's#zend_extension=opcache#;zend_extension=opcache#g' /usr/local/etc/php/php.ini
-fi
-
-# Increase the memory_limit
-if [ ! -z "$PHP_MEM_LIMIT" ]; then
- sed -i "s/memory_limit = 256M/memory_limit = ${PHP_MEM_LIMIT}/g" /usr/local/etc/php/conf.d/php-custom.ini
-fi
-
-# Increase the post_max_size
-if [ ! -z "$PHP_POST_MAX_SIZE" ]; then
- sed -i "s/post_max_size = 4G/post_max_size = ${PHP_POST_MAX_SIZE}/g" /usr/local/etc/php/conf.d/php-custom.ini
-fi
-
-# Increase the upload_max_filesize
-if [ ! -z "$PHP_UPLOAD_MAX_FILESIZE" ]; then
- sed -i "s/upload_max_filesize = 4G/upload_max_filesize= ${PHP_UPLOAD_MAX_FILESIZE}/g" /usr/local/etc/php/conf.d/php-custom.ini
-fi
-
 if [ ! -z "$PUID" ]; then
   if [ -z "$PGID" ]; then
     PGID=${PUID}

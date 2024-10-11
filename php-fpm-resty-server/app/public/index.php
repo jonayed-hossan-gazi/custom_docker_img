@@ -1,3 +1,2 @@
 <?php
-header("PHP-FPM-RESTY-NGINX: DefaultApp");
-require_once realpath("../src/index.php");
+require_once "/var/www/app/src/index.php";

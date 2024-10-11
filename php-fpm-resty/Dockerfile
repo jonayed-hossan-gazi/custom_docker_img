@@ -8,7 +8,7 @@ ARG RESTY_IMAGE_TAG="bullseye-slim"
 
 #LABEL maintainer="Evan Wies <evan@neomantra.net>"
 
-FROM jonayedhossan/php-fpm
+FROM jonayedhossan/php-fpm:latest
 
 LABEL maintainer="Jonayed Hossan Gazi <me@zuna.id>"
 
@@ -60,7 +60,16 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
 RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     openresty-resty${RESTY_DEB_FLAVOR}${RESTY_DEB_VERSION} \
-    openresty-opm${RESTY_DEB_FLAVOR}${RESTY_DEB_VERSION} && opm get oooohhoo/lua-resty-s3 \
+    openresty-opm${RESTY_DEB_FLAVOR}${RESTY_DEB_VERSION} && \
+    opm get p0pr0ck5/lua-resty-waf \
+    iakuf/lua-resty-ssl-bump \
+    thenam153/lua-resty-acme \
+    jxskiss/simplessl \
+    openresty/lua-resty-limit-traffic \
+    hongliang5316/lua-resty-ftpclient \
+    oooohhoo/lua-resty-s3 \
+    jprjr/lua-resty-exec \
+    xiedacon/lua-fs-module \
     && rm -rf /var/lib/apt/lists/*
 
 # Add additional binaries into PATH for convenience
@@ -72,9 +81,10 @@ COPY nginx.vh.default.conf /etc/nginx/conf.d/default.conf
 
 CMD ["/usr/bin/openresty", "-g", "daemon off;"]
 
+STOPSIGNAL SIGQUIT
+
 # Use SIGQUIT instead of default SIGTERM to cleanly drain requests
 # See https://github.com/openresty/docker-openresty/blob/master/README.md#tips--pitfalls
-STOPSIGNAL SIGQUIT
 
 #ref file
 #https://raw.githubusercontent.com/openresty/docker-openresty/master/bullseye/Dockerfile

@@ -1,1 +1,1 @@
-docker build -t jonayedhossan/php-fpm .
+docker build -t jonayedhossan/php-fpm:latest .

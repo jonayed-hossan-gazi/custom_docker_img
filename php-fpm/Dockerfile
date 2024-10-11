@@ -1,26 +1,25 @@
-FROM php:8.3.10-fpm-bullseye
+FROM php:8.3.12-fpm-bullseye
 
 LABEL maintainer="Zunaid Hossan Gazi <me@zuna.id>"
 
 RUN apt-get update -y && apt-get upgrade -y  && \
   apt-get install -y curl wget tar zip libicu-dev libxslt-dev libsqlite3-dev libzip-dev liblua5.1-dev libonig-dev \
-  libjudy-dev nghttp2 libbz2-dev libcurl4-openssl-dev libffi-dev libgmp-dev libuv1-dev && \
-  apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev libbrotli-dev libfreetype-dev libfreetype6 libjpeg62-turbo libpng-tools libpng16-16 && \
-  apt-get -y install supervisor ncdu ranger nano tree htop rclone rsync rhash
+  libjudy-dev nghttp2 libbz2-dev libcurl4-openssl-dev libffi-dev libgmp-dev libuv1-dev libfreetype-dev libfreetype6 \
+  libjpeg62-turbo libpng-tools libpng16-16 libfreetype6-dev libjpeg62-turbo-dev libpng-dev libbrotli-dev \
+  supervisor ncdu ranger nano tree htop rsync libc-client-dev libkrb5-dev
 
 RUN wget https://getcomposer.org/installer -O /tmp/composer-setup.php && \
   php /tmp/composer-setup.php --quiet --install-dir=/usr/bin --filename=composer && \
   rm /tmp/composer-setup.php
 
-RUN pecl install xdebug	igbinary raphf memprof inotify && docker-php-ext-enable xdebug	igbinary raphf memprof inotify
-
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
-  docker-php-ext-install gd pdo_mysql mysqli pdo_sqlite exif intl pcntl \
+  docker-php-ext-configure imap --with-kerberos --with-imap-ssl && \
+  docker-php-ext-install gd imap pdo_mysql mysqli pdo_sqlite exif intl pcntl \
   xsl soap zip mbstring sockets bcmath calendar ctype filter ftp gmp ffi && \
   pecl install -o -f redis && \ 
   pecl install -o -f luasandbox && \
   pecl install apcu && \
-  docker-php-ext-enable luasandbox redis gd apcu && \
+  docker-php-ext-enable luasandbox redis gd apcu imap && \
   docker-php-source delete && rm -rf /tmp/* /var/lib/apt/lists/* && apt-get clean
 
 ADD php-fpm.conf /usr/local/etc/php-fpm.conf
