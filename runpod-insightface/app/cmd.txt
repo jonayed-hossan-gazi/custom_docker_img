@@ -1,0 +1,5 @@
+#to run dl up and proc
+time printf "ffp_real_img_%s\n" {5..25}  | xargs -I % -n 1 -t python3 /app/run.py --img-dir /root/%/ --output-pkl /workspace/data/pkl/%.pkl
+printf "ftp://u493422.your-storagebox.de/zip/ffp_real_img/ffp_real_img_%s.zip\n" {5..40} | xargs -n 1 -t aria2c -x 8 -s 8 --ftp-user=u493422 --ftp-passwd=kry6S2BA9VBs5RpB_
+
+lftp -u u493422,kry6S2BA9VBs5RpB_ u493422.your-storagebox.de mirror -R /workspace/data zip/data
